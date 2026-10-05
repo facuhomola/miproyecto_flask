@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}Estudiantes{% endblock %}
+
+{% block contenido %}
+
+<h1>Lista de estudiantes</h1>
+
+<table border="1">
+
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Número</th>
+            <th>Nombre y apellido</th>
+            <th>DNI</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for estudiante in estudiantes %}
+
+        <tr>
+            <td>{{ estudiante[0] }}</td>
+            <td>{{ estudiante[1] }}</td>
+            <td>{{ estudiante[2] }}</td>
+            <td>{{ estudiante[3] }}</td>
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}

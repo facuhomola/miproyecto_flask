@@ -41,3 +41,7 @@ miproyecto_flask/
 ```
 
 La aplicación mantiene separadas las rutas de Flask, las consultas a la base de datos y las plantillas utilizadas para
+
+# Comandos para iniciar 
+- .\env\Scripts\activate  # Inicar entorno virual
+- python -m app.app  # Correr proyecto

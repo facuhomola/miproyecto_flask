@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Listado de materias
+{% endblock %}
+
+{% block contenido %}
+
+<section class="tabla-seccion">
+
+    <h2>Listado de materias</h2>
+
+    <p>Materias registradas en el sistema.</p>
+
+    <div class="tabla-contenedor">
+
+        <table class="tabla-datos">
+
+            <thead>
+                <tr>
+                    <th>Materia</th>
+                    <th>Curso</th>
+                    <th>Docente</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for materia in materias %}
+
+                <tr>
+                    <td>{{ materia[1] }}</td>
+                    <td>{{ materia[2] }}° año</td>
+                    <td>{{ materia[3] }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <a href="{{ url_for('materias') }}" class="volver">
+        ← Volver a materias
+    </a>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Materias
+{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion">
+
+    <h2>Materias</h2>
+
+    <p>Seleccione una opción:</p>
+
+    <div class="menu-principal">
+
+        <a href="{{ url_for('alta_materia') }}" class="opcion-menu">
+            <h3>Alta</h3>
+            <p>Registrar una nueva materia</p>
+        </a>
+
+        <a href="{{ url_for('mostrar_materias') }}" class="opcion-menu">
+            <h3>Listado</h3>
+            <p>Ver materias registradas</p>
+        </a>
+
+    </div>
+
+    <a href="{{ url_for('inicio') }}" class="volver">
+        ← Volver al menú principal
+    </a>
+
+</section>
+
+{% endblock %}

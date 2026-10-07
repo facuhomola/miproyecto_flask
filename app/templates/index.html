@@ -1,17 +1,38 @@
 {% extends "layout.html" %}
 
-{% block title %}Inicio{% endblock %}
+{% block titulo %}
+Inicio
+{% endblock %}
 
 {% block contenido %}
 
-<p>Sistema de gestión de estudiantes, materias y calificaciones.</p>
+<section class="inicio">
 
-<h2>Menú principal</h2>
+    <h2>Menú principal</h2>
 
-<ul>
-    <li><a href="/estudiantes/alta">Alta de estudiante</a></li>
-    <li><a href="/materias/alta">Alta de materia</a></li>
-    <li><a href="/estudiantes">Mostrar estudiantes</a></li>
-</ul>
+    <p>
+        Seleccione una opción para comenzar:
+    </p>
+
+    <div class="menu-principal">
+
+        <a href="{{ url_for('estudiantes') }}" class="opcion-menu">
+            <h3>Estudiantes</h3>
+            <p>Gestionar estudiantes</p>
+        </a>
+
+        <a href="{{ url_for('materias') }}" class="opcion-menu">
+            <h3>Materias</h3>
+            <p>Gestionar materias</p>
+        </a>
+
+        <a href="" class="opcion-menu">
+            <h3>Calificaciones</h3>
+            <p>Gestionar calificaciones</p>
+        </a>
+
+    </div>
+
+</section>
 
 {% endblock %}

@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Alta de materia
+{% endblock %}
+
+{% block contenido %}
+
+<section class="formulario-seccion">
+
+    <h2>Alta de materia</h2>
+
+    <p>Complete los datos de la nueva materia.</p>
+
+    <form method="POST" class="formulario">
+
+        <div class="campo">
+            <label for="curso">Curso:</label>
+
+            <select id="curso" name="curso" required>
+                <option value="">Seleccione un curso</option>
+                <option value="1">1° año</option>
+                <option value="2">2° año</option>
+                <option value="3">3° año</option>
+                <option value="4">4° año</option>
+                <option value="5">5° año</option>
+                <option value="6">6° año</option>
+            </select>
+        </div>
+
+        <div class="campo">
+            <label for="nombre_materia">Nombre de la materia:</label>
+
+            <input
+                type="text"
+                id="nombre_materia"
+                name="nombre_materia"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="docente">Nombre del docente:</label>
+
+            <input
+                type="text"
+                id="docente"
+                name="docente"
+                required
+            >
+        </div>
+
+        <button type="submit" class="boton">
+            Guardar materia
+        </button>
+
+    </form>
+
+    <a href="{{ url_for('materias') }}" class="volver">
+        ← Volver a materias
+    </a>
+
+</section>
+
+{% endblock %}

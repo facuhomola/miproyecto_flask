@@ -1,37 +1,51 @@
 {% extends "layout.html" %}
 
-{% block title %}Estudiantes{% endblock %}
+{% block titulo %}
+Listado de estudiantes
+{% endblock %}
 
 {% block contenido %}
 
-<h1>Lista de estudiantes</h1>
+<section class="tabla-seccion">
 
-<table border="1">
+    <h2>Listado de estudiantes</h2>
 
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Número</th>
-            <th>Nombre y apellido</th>
-            <th>DNI</th>
-        </tr>
-    </thead>
+    <p>Estudiantes registrados en el sistema.</p>
 
-    <tbody>
+    <div class="tabla-contenedor">
 
-        {% for estudiante in estudiantes %}
+        <table class="tabla-datos">
 
-        <tr>
-            <td>{{ estudiante[0] }}</td>
-            <td>{{ estudiante[1] }}</td>
-            <td>{{ estudiante[2] }}</td>
-            <td>{{ estudiante[3] }}</td>
-        </tr>
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Nombre y apellido</th>
+                    <th>DNI</th>
+                </tr>
+            </thead>
 
-        {% endfor %}
+            <tbody>
 
-    </tbody>
+                {% for estudiante in estudiantes %}
 
-</table>
+                <tr>
+                    <td>{{ estudiante[1] }}</td>
+                    <td>{{ estudiante[2] }}</td>
+                    <td>{{ estudiante[3] }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <a href="{{ url_for('estudiantes') }}" class="volver">
+        ← Volver a estudiantes
+    </a>
+
+</section>
 
 {% endblock %}

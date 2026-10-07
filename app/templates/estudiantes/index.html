@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Estudiantes
+{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion">
+
+    <h2>Estudiantes</h2>
+
+    <p>Seleccione una opción:</p>
+
+    <div class="menu-principal">
+
+        <a href="{{ url_for('alta_estudiante') }}" class="opcion-menu">
+            <h3>Alta</h3>
+            <p>Registrar un nuevo estudiante</p>
+        </a>
+
+        <a href="{{ url_for('mostrar_estudiantes') }}" class="opcion-menu">
+            <h3>Listado</h3>
+            <p>Ver estudiantes registrados</p>
+        </a>
+
+    </div>
+
+    <a href="{{ url_for('inicio') }}" class="volver">
+        Volver al menú principal
+    </a>
+
+</section>
+
+{% endblock %}

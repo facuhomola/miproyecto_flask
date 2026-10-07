@@ -1,30 +1,44 @@
 {% extends "layout.html" %}
 
-{% block title %}Alta de estudiante{% endblock %}
+{% block titulo %}
+Alta de estudiante
+{% endblock %}
 
 {% block contenido %}
 
-<h1>Alta de estudiante</h1>
+<section class="formulario-seccion">
 
-<form method="POST">
+    <h2>Alta de estudiante</h2>
 
-    <label for="nro">Número de registro:</label>
-    <input type="number" id="nro" name="nro" required>
+    <p>Complete los datos del nuevo estudiante.</p>
 
-    <br><br>
+    <form method="POST" class="formulario">
 
-    <label for="nombre_apellido">Nombre y apellido:</label>
-    <input type="text" id="nombre_apellido" name="nombre_apellido" required>
+        <div class="campo">
+            <label for="nro">Número de registro:</label>
+            <input type="number" id="nro" name="nro" required>
+        </div>
 
-    <br><br>
+        <div class="campo">
+            <label for="nombre_apellido">Nombre y apellido:</label>
+            <input type="text" id="nombre_apellido" name="nombre_apellido" required>
+        </div>
 
-    <label for="dni">DNI:</label>
-    <input type="number" id="dni" name="dni" required>
+        <div class="campo">
+            <label for="dni">DNI:</label>
+            <input type="number" id="dni" name="dni" required>
+        </div>
 
-    <br><br>
+        <button type="submit" class="boton">
+            Guardar estudiante
+        </button>
 
-    <button type="submit">Guardar estudiante</button>
+    </form>
 
-</form>
+    <a href="{{ url_for('estudiantes') }}" class="volver">
+        ← Volver a estudiantes
+    </a>
+
+</section>
 
 {% endblock %}

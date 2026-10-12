@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Listado de calificaciones por curso
+{% endblock %}
+
+{% block contenido %}
+
+<section class="tabla-seccion">
+    <h2>Calificaciones del curso {{ curso }}° año</h2>
+
+    {% if calificaciones %}
+
+    <div class="tabla-contenedor">
+
+        <table class="tabla-datos">
+            <thead>
+                <tr>
+                    <th>N.º</th>
+                    <th>Estudiante</th>
+                    <th>Materia</th>
+                    <th>Turno</th>
+                    <th>1.er trimestre</th>
+                    <th>2.º trimestre</th>
+                    <th>3.er trimestre</th>
+                    <th>Promedio anual</th>
+                    <th>Diciembre</th>
+                    <th>Marzo</th>
+                    <th>Calificación final</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for calificacion in calificaciones %}
+                <tr>
+                    <td>{{ calificacion[0] }}</td>
+                    <td>{{ calificacion[1] }}</td>
+                    <td>{{ calificacion[2] }}</td>
+                    <td>{{ calificacion[3] }}</td>
+                    <td>{{ calificacion[4] if calificacion[4] is not none else '-' }}</td>
+                    <td>{{ calificacion[5] if calificacion[5] is not none else '-' }}</td>
+                    <td>{{ calificacion[6] if calificacion[6] is not none else '-' }}</td>
+                    <td>{{ calificacion[7] if calificacion[7] is not none else '-' }}</td>
+                    <td>{{ calificacion[8] if calificacion[8] is not none else '-' }}</td>
+                    <td>{{ calificacion[9] if calificacion[9] is not none else '-' }}</td>
+                    <td>{{ calificacion[10] if calificacion[10] is not none else '-' }}</td>
+                    <td>{{ calificacion[11] if calificacion[11] is not none else '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    </div>
+
+        <a href="{{ url_for('materias') }}" class="volver">
+        ← Volver a materias
+    </a>
+
+    {% else %}
+        <p>No hay calificaciones registradas para este curso.</p>
+    {% endif %}
+
+</section>
+
+{% endblock %}

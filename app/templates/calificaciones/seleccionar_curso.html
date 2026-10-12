@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Seleccionar curso
+{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion">
+
+    <h2>Listado de calificaciones por curso</h2>
+
+    <p>Seleccione el curso que desea consultar:</p>
+
+    <div class="menu-principal">
+
+        {% for curso in range(1, 7) %}
+        <a href="{{ url_for('mostrar_calificaciones_por_curso', curso=curso) }}"
+           class="opcion-menu">
+            <h3>{{ curso }}.º año</h3>
+            <p>Ver calificaciones del curso</p>
+        </a>
+        {% endfor %}
+
+    </div>
+
+    <a href="{{ url_for('calificaciones') }}" class="volver">
+        ← Volver a Calificaciones
+    </a>
+
+</section>
+
+{% endblock %}

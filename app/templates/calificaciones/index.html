@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Calificaciones
+{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion">
+
+    <h2>Calificaciones</h2>
+
+    <p>Seleccione una opción:</p>
+
+    <div class="menu-principal">
+
+        <a href="#" class="opcion-menu">
+            <h3>Alta</h3>
+            <p>Registrar una nueva calificación</p>
+        </a>
+
+        <a href="#" class="opcion-menu">
+            <h3>Listado general</h3>
+            <p>Ver las calificaciones registradas</p>
+        </a>
+
+        <a href="{{ url_for('seleccionar_curso_calificaciones') }}"
+        class="opcion-menu">
+            <h3>Listado por curso</h3>
+            <p>Consultar las calificaciones de un curso</p>
+        </a>
+
+        <a href="#" class="opcion-menu">
+            <h3>Listado por materia</h3>
+            <p>Consultar las calificaciones de una materia</p>
+        </a>
+
+    </div>
+
+    <a href="{{ url_for('inicio') }}" class="volver">
+        ← Volver al menú principal
+    </a>
+
+</section>
+
+{% endblock %}

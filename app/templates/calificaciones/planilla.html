@@ -1,0 +1,125 @@
+
+{% extends "layout.html" %}
+
+{% block title %}Planilla de calificaciones{% endblock %}
+
+{% block contenido %}
+
+<section class="planilla">
+
+    <h1>Planilla de calificaciones</h1>
+
+    <form method="GET"
+          action="{{ url_for('planilla_calificaciones') }}">
+
+        <label for="curso">Curso:</label>
+
+        <select name="curso" id="curso" required>
+            <option value="">Seleccionar curso</option>
+
+            {% for curso in cursos %}
+                <option value="{{ curso }}"
+                    {% if curso == curso_seleccionado %}
+                        selected
+                    {% endif %}>
+                    {{ curso }}° año
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Seleccionar curso</button>
+
+    </form>
+
+    {% if curso_seleccionado in cursos %}
+
+        <form method="GET"
+              action="{{ url_for('planilla_calificaciones') }}">
+
+            <input type="hidden"
+                   name="curso"
+                   value="{{ curso_seleccionado }}">
+
+            <label for="id_materia">Materia:</label>
+
+            <select name="id_materia"
+                    id="id_materia"
+                    required>
+
+                <option value="">Seleccionar materia</option>
+
+                {% for materia in materias %}
+                    <option value="{{ materia[0] }}"
+                        {% if materia[0] == id_materia_seleccionada %}
+                            selected
+                        {% endif %}>
+                        {{ materia[1] }} ({{ materia[4] }})
+                    </option>
+                {% endfor %}
+
+            </select>
+
+            <button type="submit">Ver planilla</button>
+
+        </form>
+
+    {% endif %}
+
+    {% if materia_seleccionada %}
+
+        <h2>{{ materia_seleccionada[1] }}</h2>
+
+        <p>
+            Curso: {{ curso_seleccionado }}° año
+        </p>
+
+        {% if calificaciones %}
+
+            <div class="tabla-contenedor">
+                <table class="tabla-calificaciones">
+
+                    <thead>
+                        <tr>
+                            <th>Nro</th>
+                            <th>Estudiante</th>
+                            <th>DNI</th>
+                            <th>PT</th>
+                            <th>ST</th>
+                            <th>TT</th>
+                            <th>Promedio anual</th>
+                            <th>Examen diciembre</th>
+                            <th>Examen marzo</th>
+                            <th>Calificación final</th>
+                            <th>Observaciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for fila in calificaciones %}
+                            <tr>
+                                {% for dato in fila %}
+                                    <td>
+                                        {{ dato if dato is not none else "" }}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        {% else %}
+
+            <p class="mensaje-vacio">
+                No hay calificaciones registradas
+                para esta materia y curso.
+            </p>
+
+        {% endif %}
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

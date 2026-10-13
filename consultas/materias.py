@@ -57,3 +57,47 @@ def insertar_materia(nombre_materia, curso, docente, turno):
 
     finally:
         conexion.close()
+
+
+def listar_materias_por_curso(curso):
+
+    conexion = conectar()
+
+    try:
+        cursor = conexion.cursor()
+
+        consulta = """
+            SELECT id_materia, nombre_materia, curso, docente, turno
+            FROM materias
+            WHERE curso = ?
+            ORDER BY nombre_materia COLLATE NOCASE ASC
+        """
+
+        cursor.execute(consulta, (curso,))
+
+        return cursor.fetchall()
+
+    finally:
+        conexion.close()
+
+
+
+def listar_cursos():
+
+    conexion = conectar()
+
+    try:
+        cursor = conexion.cursor()
+
+        consulta = """
+            SELECT DISTINCT curso
+            FROM materias
+            ORDER BY curso ASC
+        """
+
+        cursor.execute(consulta)
+
+        return [fila[0] for fila in cursor.fetchall()]
+
+    finally:
+        conexion.close()

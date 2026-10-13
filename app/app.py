@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from consultas.estudiantes import listar_estudiantes, insertar_estudiante
-from consultas.materias import listar_materias, insertar_materia
-from consultas.calificaciones import listar_calificaciones_por_curso
+from consultas.materias import listar_materias, insertar_materia, listar_cursos, listar_materias_por_curso
+from consultas.calificaciones import listar_calificaciones_por_curso, listar_calificaciones_por_curso_y_materia
 
 app = Flask(__name__)
 
@@ -109,6 +109,45 @@ def mostrar_calificaciones_por_curso(curso):
         curso=curso,
         calificaciones=calificaciones
     )
+
+
+@app.route("/calificaciones/planilla")
+def planilla_calificaciones():
+
+    cursos = listar_cursos()
+
+    curso = request.args.get("curso", type=int)
+    id_materia = request.args.get("id_materia", type=int)
+
+    materias = []
+    calificaciones = []
+    materia_seleccionada = None
+
+    if curso in cursos:
+        materias = listar_materias_por_curso(curso)
+
+        for materia in materias:
+            if materia[0] == id_materia:
+                materia_seleccionada = materia
+                break
+
+        if materia_seleccionada is not None:
+            calificaciones = (
+                listar_calificaciones_por_curso_y_materia(
+                    curso, id_materia
+                )
+            )
+
+    return render_template(
+        "calificaciones/planilla.html",
+        cursos=cursos,
+        curso_seleccionado=curso,
+        materias=materias,
+        id_materia_seleccionada=id_materia,
+        materia_seleccionada=materia_seleccionada,
+        calificaciones=calificaciones
+    )
+
 
 # FIN CALIFICACIONES
 

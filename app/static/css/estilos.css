@@ -267,3 +267,219 @@ main {
     box-shadow: 0 0 4px rgba(44, 62, 80, 0.3);
 }
 
+
+/* ========================================
+   PLANILLA DE CALIFICACIONES
+======================================== */
+
+.planilla {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+/* Encabezado */
+
+.planilla h1 {
+    margin-bottom: 10px;
+    color: #243b53;
+    font-size: 28px;
+    text-align: center;
+}
+
+.planilla h2 {
+    margin-top: 28px;
+    margin-bottom: 8px;
+    color: #334e68;
+    font-size: 22px;
+}
+
+.planilla > p {
+    margin-bottom: 20px;
+    color: #526579;
+}
+
+/* Formularios de selección */
+
+.planilla form {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 20px 0;
+    padding: 18px;
+    background-color: #f5f8fc;
+    border: 1px solid #d9e2ec;
+    border-radius: 10px;
+}
+
+.planilla label {
+    font-weight: 600;
+    color: #334e68;
+}
+
+.planilla select {
+    min-width: 200px;
+    padding: 10px 12px;
+    border: 1px solid #bcccdc;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #243b53;
+    font-size: 14px;
+}
+
+.planilla select:focus {
+    outline: 2px solid #7da7d9;
+    outline-offset: 2px;
+}
+
+/* Botones */
+
+.planilla button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: #315b86;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.planilla button:hover {
+    background-color: #244568;
+}
+
+/* Contenedor de la tabla */
+
+.tabla-contenedor {
+    width: 100%;
+    margin-top: 20px;
+    overflow-x: auto;
+    border: 1px solid #d9e2ec;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+/* Tabla */
+
+.tabla-calificaciones {
+    width: 100%;
+    min-width: 1150px;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: #243b53;
+    font-size: 13px;
+}
+
+/* Encabezados */
+
+.tabla-calificaciones thead th {
+    padding: 13px 12px;
+    background-color: #315b86;
+    color: #ffffff;
+    text-align: center;
+    font-weight: 600;
+    white-space: nowrap;
+    border-right: 1px solid #52779c;
+    border-bottom: 2px solid #244568;
+}
+
+.tabla-calificaciones thead th:first-child {
+    border-top-left-radius: 7px;
+}
+
+.tabla-calificaciones thead th:last-child {
+    border-right: none;
+    border-top-right-radius: 7px;
+}
+
+/* Celdas */
+
+.tabla-calificaciones tbody td {
+    padding: 11px 12px;
+    border-right: 1px solid #e5eaf0;
+    border-bottom: 1px solid #e5eaf0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.tabla-calificaciones tbody td:nth-child(2) {
+    text-align: left;
+    min-width: 190px;
+}
+
+.tabla-calificaciones tbody td:last-child {
+    border-right: none;
+    text-align: left;
+    min-width: 160px;
+}
+
+/* Filas alternadas */
+
+.tabla-calificaciones tbody tr:nth-child(even) {
+    background-color: #f3f7fb;
+}
+
+.tabla-calificaciones tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Efecto al pasar el cursor */
+
+.tabla-calificaciones tbody tr:hover {
+    background-color: #e4eef9;
+}
+
+/* Última fila */
+
+.tabla-calificaciones tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Mensajes informativos */
+
+.planilla .mensaje-vacio {
+    margin-top: 20px;
+    padding: 16px;
+    border: 1px solid #d9e2ec;
+    border-radius: 8px;
+    background-color: #f5f8fc;
+    color: #526579;
+}
+
+/* Adaptación a pantallas pequeñas */
+
+@media (max-width: 768px) {
+
+    .planilla {
+        padding: 14px;
+    }
+
+    .planilla h1 {
+        font-size: 23px;
+    }
+
+    .planilla form {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .planilla select,
+    .planilla button {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .tabla-calificaciones {
+        font-size: 12px;
+    }
+
+    .tabla-calificaciones thead th,
+    .tabla-calificaciones tbody td {
+        padding: 9px;
+    }
+}

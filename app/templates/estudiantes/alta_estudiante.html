@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+ {% extends "layout.html" %}
 
 {% block titulo %}
 Alta de estudiante
@@ -27,6 +27,21 @@ Alta de estudiante
         <div class="campo">
             <label for="dni">DNI:</label>
             <input type="number" id="dni" name="dni" required>
+        </div>
+
+        <div class="campo">
+            <label for="id_grupo">Año y turno:</label>
+
+            <select id="id_grupo" name="id_grupo" required>
+                <option value="">Seleccione un grupo</option>
+
+                {% for grupo in grupos %}
+                    <option value="{{ grupo[0] }}">
+                        {{ grupo[1] }}° año - {{ grupo[2]|capitalize }}
+                    </option>
+                {% endfor %}
+
+            </select>
         </div>
 
         <button type="submit" class="boton">

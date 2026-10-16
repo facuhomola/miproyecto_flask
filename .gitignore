@@ -2,3 +2,6 @@ env/
 __pycache__/
 *.pyc
 *.db
+
+# Permitir la base de datos del proyecto Flask
+# !basededatos/calificaciones.db

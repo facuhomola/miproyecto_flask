@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from consultas.estudiantes import listar_estudiantes, insertar_estudiante
+from consultas.estudiantes import listar_estudiantes, insertar_estudiante, listar_grupos
 from consultas.materias import listar_materias, insertar_materia, listar_cursos, listar_materias_por_curso
 from consultas.calificaciones import listar_calificaciones_por_curso, listar_calificaciones_por_curso_y_materia, guardar_calificaciones_planilla
 
@@ -16,21 +16,57 @@ def inicio():
 @app.route("/estudiantes/alta", methods=["GET", "POST"])
 def alta_estudiante():
 
+    grupos = listar_grupos()
+
     if request.method == "POST":
 
-        nro = int(request.form["nro"])
-        nombre_apellido = request.form["nombre_apellido"]
-        dni = int(request.form["dni"])
+        try:
+            nro = int(request.form["nro"])
+            nombre_apellido = request.form["nombre_apellido"].strip()
+            dni = int(request.form["dni"])
+            id_grupo = int(request.form["id_grupo"])
 
-        resultado, mensaje = insertar_estudiante(nro, nombre_apellido, dni)
+        except (ValueError, KeyError):
+            return (
+                "<h1>Error en los datos</h1>"
+                "<p>Verifique los campos e intente nuevamente.</p>"
+            ), 400
+
+        # Verificar que el grupo seleccionado exista.
+        ids_grupos = [grupo[0] for grupo in grupos]
+
+        if id_grupo not in ids_grupos:
+            return (
+                "<h1>Error</h1>"
+                "<p>El grupo seleccionado no es válido.</p>"
+            ), 400
+
+        if not nombre_apellido:
+            return (
+                "<h1>Error</h1>"
+                "<p>El nombre y apellido son obligatorios.</p>"
+            ), 400
+
+        resultado, mensaje = insertar_estudiante(
+            nro,
+            nombre_apellido,
+            dni,
+            id_grupo
+        )
 
         if resultado:
             return "<h1>Estudiante guardado correctamente</h1>"
 
         else:
-            return f"<h1>Error al guardar estudiante</h1><p>{mensaje}</p>"
+            return (
+                "<h1>Error al guardar estudiante</h1>"
+                f"<p>{mensaje}</p>"
+            ), 400
 
-    return render_template("estudiantes/alta_estudiante.html")
+    return render_template(
+        "estudiantes/alta_estudiante.html",
+        grupos=grupos
+    )
 
 
 @app.route("/estudiantes")

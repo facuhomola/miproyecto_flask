@@ -483,3 +483,27 @@ main {
         padding: 9px;
     }
 }
+
+.tabla-calificaciones input[type="number"] {
+    width: 65px;
+    min-width: 55px;
+    box-sizing: border-box;
+    padding: 6px;
+    text-align: center;
+}
+
+.mensaje-success {
+    padding: 10px;
+    margin: 12px 0;
+    border-radius: 5px;
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.mensaje-error {
+    padding: 10px;
+    margin: 12px 0;
+    border-radius: 5px;
+    background-color: #f8d7da;
+    color: #721c24;
+}

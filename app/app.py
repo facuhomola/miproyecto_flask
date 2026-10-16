@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, flash
 from consultas.estudiantes import listar_estudiantes, insertar_estudiante
 from consultas.materias import listar_materias, insertar_materia, listar_cursos, listar_materias_por_curso
-from consultas.calificaciones import listar_calificaciones_por_curso, listar_calificaciones_por_curso_y_materia
+from consultas.calificaciones import listar_calificaciones_por_curso, listar_calificaciones_por_curso_y_materia, guardar_calificaciones_planilla
 
 app = Flask(__name__)
-
+app.secret_key = "1234567890"  # Clave secreta para sesiones y flash messages   
 
 @app.route("/")
 def inicio():
@@ -111,11 +111,107 @@ def mostrar_calificaciones_por_curso(curso):
     )
 
 
-@app.route("/calificaciones/planilla")
+@app.route("/calificaciones/planilla", methods=["GET", "POST"])
 def planilla_calificaciones():
 
     cursos = listar_cursos()
 
+    if request.method == "POST":
+
+        curso = request.form.get("curso", type=int)
+        id_materia = request.form.get("id_materia", type=int)
+
+        # Comprobar que el curso sea válido.
+        if curso not in cursos:
+            flash("El curso seleccionado no es válido.", "error")
+            return redirect(url_for("planilla_calificaciones"))
+
+        # Comprobar que la materia pertenezca al curso.
+        materias_del_curso = listar_materias_por_curso(curso)
+
+        materia_valida = any(
+            materia[0] == id_materia
+            for materia in materias_del_curso
+        )
+
+        if not materia_valida:
+            flash("La materia no corresponde al curso seleccionado.", "error")
+            return redirect(
+                url_for("planilla_calificaciones", curso=curso)
+            )
+
+        registros = []
+
+        # Recibir los estudiantes enviados desde el formulario.
+        for valor_id in request.form.getlist("id_estudiante"):
+
+            try:
+                id_estudiante = int(valor_id)
+            except ValueError:
+                flash("Se recibió un identificador de estudiante inválido.", "error")
+                return redirect(
+                    url_for(
+                        "planilla_calificaciones",
+                        curso=curso,
+                        id_materia=id_materia
+                    )
+                )
+
+            notas = {
+                "nota_primer_trimestre":
+                    request.form.get(
+                        f"nota_primer_trimestre_{id_estudiante}", ""
+                    ),
+
+                "nota_segundo_trimestre":
+                    request.form.get(
+                        f"nota_segundo_trimestre_{id_estudiante}", ""
+                    ),
+
+                "nota_tercer_trimestre":
+                    request.form.get(
+                        f"nota_tercer_trimestre_{id_estudiante}", ""
+                    ),
+
+                "nota_examen_diciembre":
+                    request.form.get(
+                        f"nota_examen_diciembre_{id_estudiante}", ""
+                    ),
+
+                "nota_examen_marzo":
+                    request.form.get(
+                        f"nota_examen_marzo_{id_estudiante}", ""
+                    ),
+            }
+
+            registros.append({
+                "id_estudiante": id_estudiante,
+                "notas": notas
+            })
+
+        try:
+            guardar_calificaciones_planilla(
+                id_materia,
+                registros
+            )
+
+            flash(
+                "Las calificaciones se guardaron correctamente.",
+                "success"
+            )
+
+        except ValueError as error:
+            flash(str(error), "error")
+
+        return redirect(
+            url_for(
+                "planilla_calificaciones",
+                curso=curso,
+                id_materia=id_materia
+            )
+        )
+
+    # A partir de aquí continúa la visualización habitual.
     curso = request.args.get("curso", type=int)
     id_materia = request.args.get("id_materia", type=int)
 
@@ -154,3 +250,4 @@ def planilla_calificaciones():
 # main
 if __name__ == "__main__":
     app.run(debug=True)
+

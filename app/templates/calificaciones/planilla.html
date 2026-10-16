@@ -1,4 +1,3 @@
-
 {% extends "layout.html" %}
 
 {% block title %}Planilla de calificaciones{% endblock %}
@@ -9,6 +8,16 @@
 
     <h1>Planilla de calificaciones</h1>
 
+    <!-- Mensajes de confirmación o error -->
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% for categoria, mensaje in mensajes %}
+            <p class="mensaje-{{ categoria }}">
+                {{ mensaje }}
+            </p>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- Selección del curso -->
     <form method="GET"
           action="{{ url_for('planilla_calificaciones') }}">
 
@@ -31,6 +40,7 @@
 
     </form>
 
+    <!-- Selección de la materia -->
     {% if curso_seleccionado in cursos %}
 
         <form method="GET"
@@ -65,6 +75,7 @@
 
     {% endif %}
 
+    <!-- Planilla editable -->
     {% if materia_seleccionada %}
 
         <h2>{{ materia_seleccionada[1] }}</h2>
@@ -75,45 +86,147 @@
 
         {% if calificaciones %}
 
-            <div class="tabla-contenedor">
-                <table class="tabla-calificaciones">
+            <form method="POST"
+                  action="{{ url_for('planilla_calificaciones') }}">
 
-                    <thead>
-                        <tr>
-                            <th>Nro</th>
-                            <th>Estudiante</th>
-                            <th>DNI</th>
-                            <th>PT</th>
-                            <th>ST</th>
-                            <th>TT</th>
-                            <th>Promedio anual</th>
-                            <th>Examen diciembre</th>
-                            <th>Examen marzo</th>
-                            <th>Calificación final</th>
-                            <th>Observaciones</th>
-                        </tr>
-                    </thead>
+                <!-- Mantener el curso y la materia seleccionados -->
+                <input type="hidden"
+                       name="curso"
+                       value="{{ curso_seleccionado }}">
 
-                    <tbody>
-                        {% for fila in calificaciones %}
+                <input type="hidden"
+                       name="id_materia"
+                       value="{{ id_materia_seleccionada }}">
+
+                <div class="tabla-contenedor">
+
+                    <table class="tabla-calificaciones">
+
+                        <thead>
                             <tr>
-                                {% for dato in fila %}
-                                    <td>
-                                        {{ dato if dato is not none else "" }}
-                                    </td>
-                                {% endfor %}
+                                <th>Nro</th>
+                                <th>Estudiante</th>
+                                <th>DNI</th>
+                                <th>PT</th>
+                                <th>ST</th>
+                                <th>TT</th>
+                                <th>Promedio anual</th>
+                                <th>Examen diciembre</th>
+                                <th>Examen marzo</th>
+                                <th>Calificación final</th>
+                                <th>Observaciones</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
+                        </thead>
 
-                </table>
-            </div>
+                        <tbody>
+
+                            {% for fila in calificaciones %}
+
+                                <tr>
+                                    <!-- ID interno: se envía, pero no se muestra -->
+                                    <input type="hidden"
+                                           name="id_estudiante"
+                                           value="{{ fila[0] }}">
+
+                                    <!-- Datos del estudiante -->
+                                    <td>{{ fila[1] }}</td>
+                                    <td>{{ fila[2] }}</td>
+                                    <td>{{ fila[3] }}</td>
+
+                                    <!-- Primer trimestre -->
+                                    <td>
+                                        <input
+                                            type="number"
+                                            name="nota_primer_trimestre_{{ fila[0] }}"
+                                            min="0"
+                                            max="10"
+                                            step="0.01"
+                                            value="{{ fila[4] if fila[4] is not none else '' }}"
+                                            aria-label="Primer trimestre: {{ fila[2] }}">
+                                    </td>
+
+                                    <!-- Segundo trimestre -->
+                                    <td>
+                                        <input
+                                            type="number"
+                                            name="nota_segundo_trimestre_{{ fila[0] }}"
+                                            min="0"
+                                            max="10"
+                                            step="0.01"
+                                            value="{{ fila[5] if fila[5] is not none else '' }}"
+                                            aria-label="Segundo trimestre: {{ fila[2] }}">
+                                    </td>
+
+                                    <!-- Tercer trimestre -->
+                                    <td>
+                                        <input
+                                            type="number"
+                                            name="nota_tercer_trimestre_{{ fila[0] }}"
+                                            min="0"
+                                            max="10"
+                                            step="0.01"
+                                            value="{{ fila[6] if fila[6] is not none else '' }}"
+                                            aria-label="Tercer trimestre: {{ fila[2] }}">
+                                    </td>
+
+                                    <!-- Promedio anual: solo lectura -->
+                                    <td>
+                                        {{ fila[7] if fila[7] is not none else "" }}
+                                    </td>
+
+                                    <!-- Examen diciembre -->
+                                    <td>
+                                        <input
+                                            type="number"
+                                            name="nota_examen_diciembre_{{ fila[0] }}"
+                                            min="0"
+                                            max="10"
+                                            step="0.01"
+                                            value="{{ fila[8] if fila[8] is not none else '' }}"
+                                            aria-label="Examen diciembre: {{ fila[2] }}">
+                                    </td>
+
+                                    <!-- Examen marzo -->
+                                    <td>
+                                        <input
+                                            type="number"
+                                            name="nota_examen_marzo_{{ fila[0] }}"
+                                            min="0"
+                                            max="10"
+                                            step="0.01"
+                                            value="{{ fila[9] if fila[9] is not none else '' }}"
+                                            aria-label="Examen marzo: {{ fila[2] }}">
+                                    </td>
+
+                                    <!-- Calificación final: solo lectura -->
+                                    <td>
+                                        {{ fila[10] if fila[10] is not none else "" }}
+                                    </td>
+
+                                    <!-- Observaciones: solo lectura -->
+                                    <td>
+                                        {{ fila[11] if fila[11] is not none else "" }}
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <button type="submit">
+                    Guardar calificaciones
+                </button>
+
+            </form>
 
         {% else %}
 
             <p class="mensaje-vacio">
-                No hay calificaciones registradas
-                para esta materia y curso.
+                No hay estudiantes registrados para mostrar en la planilla.
             </p>
 
         {% endif %}

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from consultas.estudiantes import listar_estudiantes, insertar_estudiante, listar_grupos
+from consultas.estudiantes import listar_estudiantes, insertar_estudiante, listar_grupos, listar_estudiantes_por_grupo
 from consultas.materias import listar_materias, insertar_materia, listar_cursos, listar_materias_por_curso
 from consultas.calificaciones import listar_calificaciones_por_curso, listar_calificaciones_por_curso_y_materia, guardar_calificaciones_planilla
 
@@ -68,6 +68,33 @@ def alta_estudiante():
         grupos=grupos
     )
 
+@app.route("/estudiantes/por-grupo")
+def mostrar_estudiantes_por_grupo():
+
+    grupos = listar_grupos()
+
+    id_grupo = request.args.get("id_grupo", type=int)
+
+    estudiantes = []
+    grupo_seleccionado = None
+
+    if id_grupo is not None:
+
+        for grupo in grupos:
+            if grupo[0] == id_grupo:
+                grupo_seleccionado = grupo
+                break
+
+        if grupo_seleccionado is not None:
+            estudiantes = listar_estudiantes_por_grupo(id_grupo)
+
+    return render_template(
+        "estudiantes/por_grupo.html",
+        grupos=grupos,
+        estudiantes=estudiantes,
+        id_grupo_seleccionado=id_grupo,
+        grupo_seleccionado=grupo_seleccionado
+    )
 
 @app.route("/estudiantes")
 def estudiantes():

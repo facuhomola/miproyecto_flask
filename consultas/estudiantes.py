@@ -88,3 +88,30 @@ def listar_grupos():
     finally:
 
         conexion.close()
+
+def listar_estudiantes_por_grupo(id_grupo):
+
+    conexion = conectar()
+
+    try:
+
+        cursor = conexion.cursor()
+
+        consulta = """
+            SELECT
+                id_estudiante,
+                nro,
+                nombre_apellido,
+                dni
+            FROM estudiantes
+            WHERE id_grupo = ?
+            ORDER BY nro ASC
+        """
+
+        cursor.execute(consulta, (id_grupo,))
+
+        return cursor.fetchall()
+
+    finally:
+
+        conexion.close()

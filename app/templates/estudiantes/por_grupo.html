@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Listado de estudiantes por grupo
+{% endblock %}
+
+{% block contenido %}
+
+<section class="tabla-seccion">
+
+    <h2>Estudiantes por año y turno</h2>
+
+    <p>Seleccione el año y el turno para consultar los estudiantes.</p>
+
+    <form method="GET"
+          action="{{ url_for('mostrar_estudiantes_por_grupo') }}"
+          class="formulario">
+
+        <div class="campo">
+            <label for="id_grupo">Año y turno:</label>
+
+            <select id="id_grupo" name="id_grupo" required>
+
+                <option value="">Seleccione un grupo</option>
+
+                {% for grupo in grupos %}
+                    <option
+                        value="{{ grupo[0] }}"
+                        {% if id_grupo_seleccionado == grupo[0] %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ grupo[1] }}° año - {{ grupo[2]|capitalize }}
+                    </option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <button type="submit" class="boton">
+            Buscar estudiantes
+        </button>
+
+    </form>
+
+    {% if grupo_seleccionado %}
+
+        <h3>
+            {{ grupo_seleccionado[1] }}° año -
+            {{ grupo_seleccionado[2]|capitalize }}
+        </h3>
+
+        {% if estudiantes %}
+
+            <div class="tabla-contenedor">
+
+                <table class="tabla-datos">
+
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Nombre y apellido</th>
+                            <th>DNI</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for estudiante in estudiantes %}
+
+                            <tr>
+                                <td>{{ estudiante[1] }}</td>
+                                <td>{{ estudiante[2] }}</td>
+                                <td>{{ estudiante[3] }}</td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <p>No hay estudiantes asignados a este grupo.</p>
+
+        {% endif %}
+
+    {% endif %}
+
+    <a href="{{ url_for('estudiantes') }}" class="volver">
+        ← Volver a estudiantes
+    </a>
+
+</section>
+
+{% endblock %}

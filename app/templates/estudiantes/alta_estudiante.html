@@ -30,17 +30,14 @@ Alta de estudiante
         </div>
 
         <div class="campo">
-            <label for="id_grupo">Año y turno:</label>
+            <label for="id_grupo">Año, turno y división:</label>
 
-            <select id="id_grupo" name="id_grupo" required>
-                <option value="">Seleccione un grupo</option>
-
+            <select name="id_grupo" required>
                 {% for grupo in grupos %}
                     <option value="{{ grupo[0] }}">
-                        {{ grupo[1] }}° año - {{ grupo[2]|capitalize }}
+                        {{ grupo[1] }}° año - {{ grupo[2] }} - División {{ grupo[3] }}
                     </option>
                 {% endfor %}
-
             </select>
         </div>
 

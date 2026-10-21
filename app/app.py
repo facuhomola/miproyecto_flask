@@ -12,6 +12,7 @@ def inicio():
 
 # ESTUDIANTES
 
+
 # Ruta para alta de estudiantes
 @app.route("/estudiantes/alta", methods=["GET", "POST"])
 def alta_estudiante():
@@ -24,7 +25,7 @@ def alta_estudiante():
             nro = int(request.form["nro"])
             nombre_apellido = request.form["nombre_apellido"].strip()
             dni = int(request.form["dni"])
-            id_grupo = int(request.form["id_grupo"])
+            id_gruponuevo = int(request.form["id_grupo"])
 
         except (ValueError, KeyError):
             return (
@@ -35,7 +36,7 @@ def alta_estudiante():
         # Verificar que el grupo seleccionado exista.
         ids_grupos = [grupo[0] for grupo in grupos]
 
-        if id_grupo not in ids_grupos:
+        if id_gruponuevo not in ids_grupos:
             return (
                 "<h1>Error</h1>"
                 "<p>El grupo seleccionado no es válido.</p>"
@@ -51,7 +52,7 @@ def alta_estudiante():
             nro,
             nombre_apellido,
             dni,
-            id_grupo
+            id_gruponuevo
         )
 
         if resultado:
@@ -67,6 +68,7 @@ def alta_estudiante():
         "estudiantes/alta_estudiante.html",
         grupos=grupos
     )
+
 
 @app.route("/estudiantes/por-grupo")
 def mostrar_estudiantes_por_grupo():

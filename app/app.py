@@ -1,13 +1,121 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+import os
+from functools import wraps
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from consultas.estudiantes import listar_estudiantes, insertar_estudiante, listar_grupos, listar_estudiantes_por_grupo
 from consultas.materias import listar_materias, insertar_materia, listar_cursos, listar_materias_por_curso
 from consultas.calificaciones import listar_calificaciones_por_curso, listar_calificaciones_por_curso_y_materia, guardar_calificaciones_planilla
+from consultas.usuarios import crear_usuario, buscar_usuario, verificar_contrasenia
 
 app = Flask(__name__)
-app.secret_key = "1234567890"  # Clave secreta para sesiones y flash messages   
+
+app.secret_key = os.environ.get(
+    "FLASK_SECRET_KEY",
+    "admin1234"  # Cambiar en producción
+)
+
+
+# CONTROL DE ACCESO
+
+def requiere_login(funcion):
+    @wraps(funcion)
+    def envoltura(*args, **kwargs):
+
+        if "id_usuario" not in session:
+            flash("Debe iniciar sesión para acceder.", "error")
+            return redirect(url_for("login"))
+
+        return funcion(*args, **kwargs)
+
+    return envoltura
+
+
+def requiere_rol(*roles_permitidos):
+    def decorador(funcion):
+        @wraps(funcion)
+        def envoltura(*args, **kwargs):
+
+            if "id_usuario" not in session:
+                flash("Debe iniciar sesión para acceder.", "error")
+                return redirect(url_for("login"))
+
+            if session.get("rol") not in roles_permitidos:
+                flash("No tiene permisos para acceder a esta sección.", "error")
+                return redirect(url_for("inicio"))
+
+            return funcion(*args, **kwargs)
+
+        return envoltura
+
+    return decorador
+
+
+# LOGIN
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    if "id_usuario" in session:
+        return redirect(url_for("inicio"))
+
+    if request.method == "POST":
+
+        nombre_usuario = request.form.get(
+            "nombre_de_usuario", ""
+        ).strip()
+
+        contrasenia = request.form.get(
+            "contrasenia", ""
+        )
+
+        usuario = buscar_usuario(nombre_usuario)
+
+        if (
+            usuario is not None
+            and verificar_contrasenia(
+                contrasenia,
+                usuario[2]
+            )
+        ):
+            session.clear()
+
+            session["id_usuario"] = usuario[0]
+            session["nombre_de_usuario"] = usuario[1]
+            session["rol"] = usuario[3]
+
+            flash("Inicio de sesión correcto.", "success")
+
+            return redirect(url_for("inicio"))
+
+        flash(
+            "Nombre de usuario o contraseña incorrectos.",
+            "error"
+        )
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+@requiere_login
+def logout():
+
+    session.clear()
+
+    flash("La sesión se cerró correctamente.", "success")
+
+    return redirect(url_for("login"))
+
+
+# INICIO
 
 @app.route("/")
 def inicio():
+
+    if "id_usuario" not in session:
+        return redirect(url_for("login"))
+
+    if session.get("rol") == "docente":
+        return redirect(url_for("calificaciones"))
+
     return render_template("index.html")
 
 # ESTUDIANTES
@@ -15,6 +123,7 @@ def inicio():
 
 # Ruta para alta de estudiantes
 @app.route("/estudiantes/alta", methods=["GET", "POST"])
+@requiere_rol("administrador")
 def alta_estudiante():
 
     grupos = listar_grupos()
@@ -71,6 +180,7 @@ def alta_estudiante():
 
 
 @app.route("/estudiantes/por-grupo")
+@requiere_rol("administrador")
 def mostrar_estudiantes_por_grupo():
 
     grupos = listar_grupos()
@@ -99,11 +209,13 @@ def mostrar_estudiantes_por_grupo():
     )
 
 @app.route("/estudiantes")
+@requiere_rol("administrador")
 def estudiantes():
     return render_template("estudiantes/index.html")
 
 
 @app.route("/estudiantes/listado")
+@requiere_rol("administrador")
 def mostrar_estudiantes():
 
     estudiantes = listar_estudiantes()
@@ -118,12 +230,14 @@ def mostrar_estudiantes():
 # MATERIAS
 
 @app.route("/materias")
+@requiere_rol("administrador")
 def materias():
     return render_template("materias/index.html")
 
 
 # Ruta para alta de materias
 @app.route("/materias/alta" , methods=["GET", "POST"])
+@requiere_rol("administrador")
 def alta_materia():
     if request.method == "POST":
 
@@ -143,6 +257,7 @@ def alta_materia():
 
 
 @app.route("/materias/listado")
+@requiere_rol("administrador")
 def mostrar_materias():
 
     materias = listar_materias()
@@ -157,14 +272,17 @@ def mostrar_materias():
 # CALIFICACIONES
 
 @app.route("/calificaciones")
+@requiere_rol("administrador", "docente")
 def calificaciones():
     return render_template("calificaciones/index.html")
 
 @app.route("/calificaciones/curso")
+@requiere_rol("administrador", "docente")
 def seleccionar_curso_calificaciones():
     return render_template("calificaciones/seleccionar_curso.html")
 
 @app.route("/calificaciones/curso/<int:curso>")
+@requiere_rol("administrador", "docente")
 def mostrar_calificaciones_por_curso(curso):
 
     calificaciones = listar_calificaciones_por_curso(curso)
@@ -177,6 +295,7 @@ def mostrar_calificaciones_por_curso(curso):
 
 
 @app.route("/calificaciones/planilla", methods=["GET", "POST"])
+@requiere_rol("administrador", "docente")
 def planilla_calificaciones():
 
     cursos = listar_cursos()

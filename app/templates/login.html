@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión</title>
+</head>
+<body>
+
+    <h1>Registro de calificaciones</h1>
+    <h2>Iniciar sesión</h2>
+
+    {% with mensajes = get_flashed_messages() %}
+        {% if mensajes %}
+            {% for mensaje in mensajes %}
+                <p>{{ mensaje }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('login') }}">
+        <div>
+            <label for="nombre_de_usuario">
+                Nombre de usuario
+            </label>
+            <input
+                type="text"
+                id="nombre_de_usuario"
+                name="nombre_de_usuario"
+                required
+                autocomplete="username"
+            >
+        </div>
+
+        <div>
+            <label for="contrasenia">
+                Contraseña
+            </label>
+            <input
+                type="password"
+                id="contrasenia"
+                name="contrasenia"
+                required
+                autocomplete="current-password"
+            >
+        </div>
+
+        <button type="submit">Ingresar</button>
+    </form>
+
+</body>
+</html>

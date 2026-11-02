@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -17,8 +18,31 @@
     </header>
 
     <main>
+
+        <!-- Mensajes del sistema -->
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+
+            {% if mensajes %}
+
+                <section class="mensajes">
+
+                    {% for categoria, mensaje in mensajes %}
+
+                        <div class="mensaje mensaje-{{ categoria }}">
+                            {{ mensaje }}
+                        </div>
+
+                    {% endfor %}
+
+                </section>
+
+            {% endif %}
+
+        {% endwith %}
+
         {% block contenido %}
         {% endblock %}
+
     </main>
 
 </body>

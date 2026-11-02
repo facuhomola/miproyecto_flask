@@ -1,0 +1,67 @@
+ {% extends "layout.html" %}
+
+{% block titulo %}
+Editar docente de materia
+{% endblock %}
+
+{% block contenido %}
+
+<section class="formulario-seccion">
+
+    <h2>Editar docente responsable</h2>
+
+    <p>Modifique el docente asignado a la materia.</p>
+
+    <div class="campo">
+        <label>Materia:</label>
+        <input type="text" value="{{ materia[1] }}" readonly>
+    </div>
+
+    <div class="campo">
+        <label>Curso:</label>
+        <input type="text" value="{{ materia[2] }}° año" readonly>
+    </div>
+
+    <div class="campo">
+        <label>Turno:</label>
+        <input type="text" value="{{ materia[3] }}" readonly>
+    </div>
+
+    <form method="POST" class="formulario">
+
+        <div class="campo">
+            <label for="id_usuario">Docente responsable:</label>
+
+            <select id="id_usuario" name="id_usuario" required>
+
+                <option value="">Seleccione un docente</option>
+
+                {% for docente in docentes %}
+                    <option
+                        value="{{ docente[0] }}"
+                        {% if materia[4] == docente[0] %}selected{% endif %}
+                    >
+                        {{ docente[1] }}
+                    </option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <button type="submit" class="boton">
+            Guardar cambios
+        </button>
+
+    </form>
+
+    {% if session.get('rol') == 'administrador' %}
+
+    <a href="{{ url_for('mostrar_materias') }}" class="volver">
+        ← Volver al listado de materias
+    </a>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

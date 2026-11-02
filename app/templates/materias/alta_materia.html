@@ -51,14 +51,18 @@ Alta de materia
         </div>
 
         <div class="campo">
-            <label for="docente">Nombre del docente:</label>
+            <label for="id_usuario">Docente responsable:</label>
 
-            <input
-                type="text"
-                id="docente"
-                name="docente"
-                required
-            >
+            <select id="id_usuario" name="id_usuario" required>
+                <option value="">Seleccione un docente</option>
+
+                {% for docente in docentes %}
+                    <option value="{{ docente[0] }}">
+                        {{ docente[1] }}
+                    </option>
+                {% endfor %}
+
+            </select>
         </div>
 
         <button type="submit" class="boton">

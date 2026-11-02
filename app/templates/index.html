@@ -8,12 +8,6 @@ Inicio
 
 <section class="inicio">
 
-    <h2>Menú principal</h2>
-
-    <p>
-        Seleccione una opción para comenzar:
-    </p>
-
     <div class="menu-principal">
 
         <a href="{{ url_for('estudiantes') }}" class="opcion-menu">
@@ -30,6 +24,15 @@ Inicio
             <h3>Calificaciones</h3>
             <p>Gestionar calificaciones</p>
         </a>
+
+        {% if session.get('rol') == 'administrador' %}
+
+            <a href="{{ url_for('usuarios') }}" class="opcion-menu">
+                <h3>Usuarios</h3>
+                <p>Gestionar usuarios docentes</p>
+            </a>
+
+        {% endif %}
 
     </div>
 

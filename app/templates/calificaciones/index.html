@@ -40,9 +40,11 @@ Calificaciones
 
     </div>
 
-    <a href="{{ url_for('inicio') }}" class="volver">
-        ← Volver al menú principal
-    </a>
+    {% if session.get('rol') == 'administrador' %}
+        <a href="{{ url_for('inicio') }}" class="volver">
+            ← Volver al menú principal
+        </a>
+    {% endif %}
 
 </section>
 

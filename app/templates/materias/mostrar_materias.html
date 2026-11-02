@@ -22,6 +22,7 @@ Listado de materias
                     <th>Curso</th>
                     <th>Turno</th>
                     <th>Docente</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
 
@@ -34,6 +35,12 @@ Listado de materias
                     <td>{{ materia[2] }}° año</td>
                     <td>{{ materia[4] }}</td>
                     <td>{{ materia[3] }}</td>
+
+                    <td>
+                        <a href="{{ url_for('editar_materia', id_materia=materia[0]) }}">
+                            Editar
+                        </a>
+                    </td>
                 </tr>
 
                 {% endfor %}

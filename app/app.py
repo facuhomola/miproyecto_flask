@@ -2,7 +2,7 @@ import os
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from consultas.estudiantes import listar_estudiantes, insertar_estudiante, listar_grupos, listar_estudiantes_por_grupo
-from consultas.materias import listar_materias, insertar_materia, listar_cursos, listar_materias_por_curso
+from consultas.materias import listar_materias, insertar_materia, listar_cursos, listar_materias_por_curso, listar_docentes, actualizar_docente_materia
 from consultas.calificaciones import listar_calificaciones_por_curso, listar_calificaciones_por_curso_y_materia, guardar_calificaciones_planilla
 from consultas.usuarios import crear_usuario, buscar_usuario, verificar_contrasenia
 
@@ -236,24 +236,35 @@ def materias():
 
 
 # Ruta para alta de materias
-@app.route("/materias/alta" , methods=["GET", "POST"])
+@app.route("/materias/alta", methods=["GET", "POST"])
 @requiere_rol("administrador")
 def alta_materia():
+
+    docentes = listar_docentes()
+
     if request.method == "POST":
 
-        nombre_materia = request.form["nombre_materia"]
+        nombre_materia = request.form["nombre_materia"].strip()
         curso = int(request.form["curso"])
-        docente = request.form["docente"]
+        id_usuario = int(request.form["id_usuario"])
         turno = request.form["turno"]
 
-        resultado = insertar_materia(nombre_materia, curso, docente, turno)
+        resultado = insertar_materia(
+            nombre_materia,
+            curso,
+            id_usuario,
+            turno
+        )
 
         if resultado:
             return "<h1>Materia guardada correctamente</h1>"
-
         else:
             return "<h1>Error al guardar materia</h1>"
-    return render_template("materias/alta_materia.html")
+
+    return render_template(
+        "materias/alta_materia.html",
+        docentes=docentes
+    )
 
 
 @app.route("/materias/listado")
@@ -267,7 +278,72 @@ def mostrar_materias():
         materias=materias
     )
 
+@app.route("/materias/editar/<int:id_materia>", methods=["GET", "POST"])
+@requiere_rol("administrador")
+def editar_materia(id_materia):
+
+    conexion = None
+
+    from basededatos.conexion import conectar
+
+    conexion = conectar()
+
+    try:
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            SELECT id_materia, nombre_materia, curso, turno, id_usuario
+            FROM materias
+            WHERE id_materia = ?
+        """, (id_materia,))
+
+        materia = cursor.fetchone()
+
+    finally:
+        conexion.close()
+
+    if materia is None:
+        flash("La materia seleccionada no existe.", "error")
+        return redirect(url_for("mostrar_materias"))
+
+    docentes = listar_docentes()
+
+    if request.method == "POST":
+
+        try:
+            id_usuario = int(request.form["id_usuario"])
+        except (ValueError, KeyError):
+            flash("Debe seleccionar un docente válido.", "error")
+            return redirect(url_for("editar_materia", id_materia=id_materia))
+
+        resultado = actualizar_docente_materia(
+            id_materia,
+            id_usuario
+        )
+
+        if resultado:
+            flash("Docente responsable actualizado correctamente.", "success")
+            return redirect(url_for("mostrar_materias"))
+
+        flash("No se pudo actualizar el docente responsable.", "error")
+
+    return render_template(
+        "materias/editar_materia.html",
+        materia=materia,
+        docentes=docentes
+    )
+
 # FIN MATERIAS
+
+# USUARIOS
+
+@app.route("/usuarios")
+@requiere_rol("administrador")
+def usuarios():
+
+    return render_template("usuarios/listado.html")
+
+# FIN USUARIOS
 
 # CALIFICACIONES
 

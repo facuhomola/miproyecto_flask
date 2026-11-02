@@ -39,6 +39,7 @@ def listar_calificaciones_por_curso(curso):
         conexion.close()
 
 
+
 def listar_calificaciones_por_curso_y_materia(curso, id_materia):
 
     conexion = conectar()
@@ -60,16 +61,22 @@ def listar_calificaciones_por_curso_y_materia(curso, id_materia):
                 c.nota_examen_marzo,
                 c.calificacion_final,
                 c.observaciones
-            FROM estudiantes AS e
+            FROM materias AS m
+
+            JOIN estudiantes AS e
+                ON e.id_gruponuevo = m.id_grupo
 
             LEFT JOIN calificaciones AS c
                 ON c.id_estudiante = e.id_estudiante
-                AND c.id_materia = ?
+                AND c.id_materia = m.id_materia
+
+            WHERE m.id_materia = ?
+              AND m.curso = ?
 
             ORDER BY e.nro ASC
         """
 
-        cursor.execute(consulta, (id_materia,))
+        cursor.execute(consulta, (id_materia, curso))
 
         return cursor.fetchall()
 
@@ -79,7 +86,8 @@ def listar_calificaciones_por_curso_y_materia(curso, id_materia):
 
 
 
-def guardar_calificaciones_planilla(id_materia, registros):
+
+def guardar_calificaciones_planilla(id_materia, registros, id_usuario=None):
 
     conexion = conectar()
 
@@ -99,43 +107,67 @@ def guardar_calificaciones_planilla(id_materia, registros):
     try:
         cursor = conexion.cursor()
 
-        # 1. Verificar que exista la materia seleccionada.
+        # 1. Verificar que exista la materia y obtener
+        # su grupo y el docente responsable.
         cursor.execute(
             """
-            SELECT id_materia
+            SELECT id_materia, id_grupo, id_usuario
             FROM materias
             WHERE id_materia = ?
             """,
             (id_materia,)
         )
 
-        if cursor.fetchone() is None:
+        materia = cursor.fetchone()
+
+        if materia is None:
             raise ValueError("La materia seleccionada no existe.")
 
-        # 2. Procesar cada estudiante recibido desde la planilla.
+        id_grupo_materia = materia[1]
+        id_docente_materia = materia[2]
+
+        # 2. Verificar que el docente tenga autorización.
+        # Si id_usuario es None, se trata del administrador.
+        if (
+            id_usuario is not None
+            and id_docente_materia != id_usuario
+        ):
+            raise ValueError(
+                "No tenés autorización para modificar esta materia."
+            )
+
+        # 3. Procesar cada estudiante recibido desde la planilla.
         for registro in registros:
 
             id_estudiante = registro["id_estudiante"]
             notas = registro["notas"]
 
-            # Verificar que exista el estudiante.
+            # Verificar que exista el estudiante y que pertenezca
+            # al grupo asignado a la materia.
             cursor.execute(
                 """
-                SELECT id_estudiante
+                SELECT id_estudiante, id_gruponuevo
                 FROM estudiantes
                 WHERE id_estudiante = ?
                 """,
                 (id_estudiante,)
             )
 
-            if cursor.fetchone() is None:
+            estudiante = cursor.fetchone()
+
+            if estudiante is None:
                 raise ValueError(
                     f"El estudiante {id_estudiante} no existe."
                 )
 
+            if estudiante[1] != id_grupo_materia:
+                raise ValueError(
+                    "El estudiante no pertenece al grupo de esta materia."
+                )
+
             notas_validas = {}
 
-            # 3. Validar las notas ingresadas.
+            # 4. Validar las notas ingresadas.
             for campo in campos_notas:
 
                 valor = notas.get(campo, "")
@@ -166,7 +198,7 @@ def guardar_calificaciones_planilla(id_materia, registros):
 
                 notas_validas[campo] = nota
 
-            # 4. Buscar el registro de calificaciones existente.
+            # 5. Buscar el registro de calificaciones existente.
             cursor.execute(
                 """
                 SELECT id_calificacion
@@ -180,7 +212,7 @@ def guardar_calificaciones_planilla(id_materia, registros):
 
             if existente:
 
-                # 5. Actualizar solamente las notas modificadas.
+                # Actualizar solamente las notas modificadas.
                 if notas_validas:
 
                     campos_update = ", ".join(
@@ -208,7 +240,7 @@ def guardar_calificaciones_planilla(id_materia, registros):
                 if not notas_validas:
                     continue
 
-                # 6. Insertar el registro inicial del estudiante.
+                # Insertar el registro inicial del estudiante.
                 columnas = [
                     "id_estudiante",
                     "id_materia",
@@ -234,8 +266,7 @@ def guardar_calificaciones_planilla(id_materia, registros):
                     valores_insert
                 )
 
-            # 7. Recuperar todas las notas actuales de la base de datos.
-            # Así conservamos las notas anteriores que no se modificaron.
+            # 6. Recuperar todas las notas actuales de la base de datos.
             cursor.execute(
                 """
                 SELECT
@@ -268,14 +299,14 @@ def guardar_calificaciones_planilla(id_materia, registros):
                 float(fila[4]) if fila[4] is not None else None
             )
 
-            # 8. Calcular el promedio anual.
+            # 7. Calcular el promedio anual.
             # Solo se calcula si los tres trimestres tienen nota.
             if all(nota is not None for nota in trimestres):
                 promedio_anual = round(sum(trimestres) / 3, 2)
             else:
                 promedio_anual = None
 
-            # 9. Calcular la calificación final.
+            # 8. Calcular la calificación final.
             calificacion_final = None
 
             # Aprobación directa:
@@ -300,7 +331,7 @@ def guardar_calificaciones_planilla(id_materia, registros):
 
                     calificacion_final = marzo
 
-            # 10. Guardar los resultados calculados.
+            # 9. Guardar los resultados calculados.
             cursor.execute(
                 """
                 UPDATE calificaciones
@@ -316,11 +347,11 @@ def guardar_calificaciones_planilla(id_materia, registros):
                 )
             )
 
-        # 11. Confirmar todos los cambios.
+        # 10. Confirmar todos los cambios.
         conexion.commit()
 
     except Exception:
-        # Si algo falla, deshacer todos los cambios de esta operación.
+        # Si algo falla, deshacer todos los cambios.
         conexion.rollback()
         raise
 

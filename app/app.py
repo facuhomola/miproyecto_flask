@@ -1,10 +1,36 @@
 import os
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from consultas.estudiantes import listar_estudiantes, insertar_estudiante, listar_grupos, listar_estudiantes_por_grupo
-from consultas.materias import listar_materias, insertar_materia, listar_cursos, listar_materias_por_curso, listar_docentes, actualizar_docente_materia
-from consultas.calificaciones import listar_calificaciones_por_curso, listar_calificaciones_por_curso_y_materia, guardar_calificaciones_planilla
-from consultas.usuarios import crear_usuario, buscar_usuario, verificar_contrasenia
+
+from consultas.estudiantes import (
+    listar_estudiantes,
+    insertar_estudiante,
+    listar_grupos as listar_grupos_estudiantes,
+    listar_estudiantes_por_grupo
+)
+
+from consultas.materias import (
+    listar_materias,
+    listar_docentes,
+    listar_grupos as listar_grupos_materias,
+    insertar_materia,
+    listar_materias_por_curso,
+    listar_cursos,
+    actualizar_docente_materia
+)
+
+from consultas.calificaciones import (
+    listar_calificaciones_por_curso,
+    listar_calificaciones_por_curso_y_materia,
+    guardar_calificaciones_planilla
+)
+
+from consultas.usuarios import (
+    crear_usuario,
+    buscar_usuario,
+    verificar_contrasenia
+)
+
 
 app = Flask(__name__)
 
@@ -118,15 +144,15 @@ def inicio():
 
     return render_template("index.html")
 
-# ESTUDIANTES
 
+# ESTUDIANTES
 
 # Ruta para alta de estudiantes
 @app.route("/estudiantes/alta", methods=["GET", "POST"])
 @requiere_rol("administrador")
 def alta_estudiante():
 
-    grupos = listar_grupos()
+    grupos = listar_grupos_estudiantes()
 
     if request.method == "POST":
 
@@ -183,7 +209,7 @@ def alta_estudiante():
 @requiere_rol("administrador")
 def mostrar_estudiantes_por_grupo():
 
-    grupos = listar_grupos()
+    grupos = listar_grupos_estudiantes()
 
     id_grupo = request.args.get("id_grupo", type=int)
 
@@ -208,6 +234,7 @@ def mostrar_estudiantes_por_grupo():
         grupo_seleccionado=grupo_seleccionado
     )
 
+
 @app.route("/estudiantes")
 @requiere_rol("administrador")
 def estudiantes():
@@ -225,7 +252,9 @@ def mostrar_estudiantes():
         estudiantes=estudiantes
     )
 
+
 # FIN ESTUDIANTES
+
 
 # MATERIAS
 
@@ -236,34 +265,64 @@ def materias():
 
 
 # Ruta para alta de materias
+
 @app.route("/materias/alta", methods=["GET", "POST"])
 @requiere_rol("administrador")
 def alta_materia():
 
     docentes = listar_docentes()
+    grupos = listar_grupos_materias()
 
     if request.method == "POST":
 
-        nombre_materia = request.form["nombre_materia"].strip()
-        curso = int(request.form["curso"])
-        id_usuario = int(request.form["id_usuario"])
-        turno = request.form["turno"]
+        nombre_materia = request.form.get(
+            "nombre_materia", ""
+        ).strip()
 
+        try:
+            curso = int(request.form.get("curso", ""))
+            id_grupo = int(request.form.get("id_grupo", ""))
+            id_usuario = int(request.form.get("id_usuario", ""))
+
+        except (ValueError, TypeError):
+            flash("Debe completar correctamente todos los campos.", "error")
+            return redirect(url_for("alta_materia"))
+
+        # Verificar que el nombre de la materia no esté vacío.
+        if not nombre_materia:
+            flash("El nombre de la materia es obligatorio.", "error")
+            return redirect(url_for("alta_materia"))
+
+        # Verificar que el grupo pertenezca al curso seleccionado.
+        grupo_valido = any(
+            grupo[0] == id_grupo and grupo[1] == curso
+            for grupo in grupos
+        )
+
+        if not grupo_valido:
+            flash(
+                "El grupo seleccionado no corresponde al curso indicado.",
+                "error"
+            )
+            return redirect(url_for("alta_materia"))
+
+        # Insertar la materia.
         resultado = insertar_materia(
             nombre_materia,
-            curso,
-            id_usuario,
-            turno
+            id_grupo,
+            id_usuario
         )
 
         if resultado:
-            return "<h1>Materia guardada correctamente</h1>"
-        else:
-            return "<h1>Error al guardar materia</h1>"
+            flash("Materia guardada correctamente.", "success")
+            return redirect(url_for("materias"))
+
+        flash("No se pudo guardar la materia.", "error")
 
     return render_template(
         "materias/alta_materia.html",
-        docentes=docentes
+        docentes=docentes,
+        grupos=grupos
     )
 
 
@@ -277,6 +336,7 @@ def mostrar_materias():
         "materias/mostrar_materias.html",
         materias=materias
     )
+
 
 @app.route("/materias/editar/<int:id_materia>", methods=["GET", "POST"])
 @requiere_rol("administrador")
@@ -333,7 +393,9 @@ def editar_materia(id_materia):
         docentes=docentes
     )
 
+
 # FIN MATERIAS
+
 
 # USUARIOS
 
@@ -343,7 +405,9 @@ def usuarios():
 
     return render_template("usuarios/listado.html")
 
+
 # FIN USUARIOS
+
 
 # CALIFICACIONES
 
@@ -352,13 +416,17 @@ def usuarios():
 def calificaciones():
     return render_template("calificaciones/index.html")
 
+
+# Esta consulta general queda reservada al administrador,
+# porque actualmente no filtra las materias por docente.
 @app.route("/calificaciones/curso")
-@requiere_rol("administrador", "docente")
+@requiere_rol("administrador")
 def seleccionar_curso_calificaciones():
     return render_template("calificaciones/seleccionar_curso.html")
 
+
 @app.route("/calificaciones/curso/<int:curso>")
-@requiere_rol("administrador", "docente")
+@requiere_rol("administrador")
 def mostrar_calificaciones_por_curso(curso):
 
     calificaciones = listar_calificaciones_por_curso(curso)
@@ -376,6 +444,13 @@ def planilla_calificaciones():
 
     cursos = listar_cursos()
 
+    # Para el administrador no se aplica filtro por docente.
+    # Para el docente se utiliza su identificador de sesión.
+    id_usuario = None
+
+    if session.get("rol") == "docente":
+        id_usuario = session.get("id_usuario")
+
     if request.method == "POST":
 
         curso = request.form.get("curso", type=int)
@@ -386,8 +461,12 @@ def planilla_calificaciones():
             flash("El curso seleccionado no es válido.", "error")
             return redirect(url_for("planilla_calificaciones"))
 
-        # Comprobar que la materia pertenezca al curso.
-        materias_del_curso = listar_materias_por_curso(curso)
+        # Comprobar que la materia pertenezca al curso
+        # y que esté asignada al docente conectado.
+        materias_del_curso = listar_materias_por_curso(
+            curso,
+            id_usuario
+        )
 
         materia_valida = any(
             materia[0] == id_materia
@@ -395,7 +474,10 @@ def planilla_calificaciones():
         )
 
         if not materia_valida:
-            flash("La materia no corresponde al curso seleccionado.", "error")
+            flash(
+                "La materia no corresponde al curso seleccionado.",
+                "error"
+            )
             return redirect(
                 url_for("planilla_calificaciones", curso=curso)
             )
@@ -407,8 +489,12 @@ def planilla_calificaciones():
 
             try:
                 id_estudiante = int(valor_id)
+
             except ValueError:
-                flash("Se recibió un identificador de estudiante inválido.", "error")
+                flash(
+                    "Se recibió un identificador de estudiante inválido.",
+                    "error"
+                )
                 return redirect(
                     url_for(
                         "planilla_calificaciones",
@@ -452,7 +538,8 @@ def planilla_calificaciones():
         try:
             guardar_calificaciones_planilla(
                 id_materia,
-                registros
+                registros,
+                id_usuario
             )
 
             flash(
@@ -471,7 +558,7 @@ def planilla_calificaciones():
             )
         )
 
-    # A partir de aquí continúa la visualización habitual.
+    # Visualización de la planilla.
     curso = request.args.get("curso", type=int)
     id_materia = request.args.get("id_materia", type=int)
 
@@ -480,7 +567,12 @@ def planilla_calificaciones():
     materia_seleccionada = None
 
     if curso in cursos:
-        materias = listar_materias_por_curso(curso)
+
+        # Mostrar solamente las materias del docente conectado.
+        materias = listar_materias_por_curso(
+            curso,
+            id_usuario
+        )
 
         for materia in materias:
             if materia[0] == id_materia:
@@ -488,9 +580,11 @@ def planilla_calificaciones():
                 break
 
         if materia_seleccionada is not None:
+
             calificaciones = (
                 listar_calificaciones_por_curso_y_materia(
-                    curso, id_materia
+                    curso,
+                    id_materia
                 )
             )
 
@@ -507,7 +601,8 @@ def planilla_calificaciones():
 
 # FIN CALIFICACIONES
 
-# main
+
+# MAIN
+
 if __name__ == "__main__":
     app.run(debug=True)
-

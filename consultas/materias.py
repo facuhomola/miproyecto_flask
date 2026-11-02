@@ -47,13 +47,13 @@ def listar_docentes():
         conexion.close()
 
 
-def insertar_materia(nombre_materia, curso, id_usuario, turno):
+def insertar_materia(nombre_materia, id_grupo, id_usuario):
     conexion = conectar()
 
     try:
         cursor = conexion.cursor()
 
-        # Obtener el nombre real del docente seleccionado.
+        # 1. Verificar que el usuario seleccionado sea docente.
         cursor.execute("""
             SELECT nombre_apellido
             FROM usuarios
@@ -66,20 +66,44 @@ def insertar_materia(nombre_materia, curso, id_usuario, turno):
         if docente is None:
             return False
 
+        # 2. Obtener curso y turno del grupo seleccionado.
+        cursor.execute("""
+            SELECT curso, turno
+            FROM grupos_nuevo
+            WHERE id_grupo = ?
+        """, (id_grupo,))
+
+        grupo = cursor.fetchone()
+
+        if grupo is None:
+            return False
+
+        curso = grupo[0]
+        turno = grupo[1]
+
+        # 3. Registrar la materia con su grupo y docente.
         consulta = """
             INSERT INTO materias (
                 nombre_materia,
                 curso,
                 docente,
                 turno,
-                id_usuario
+                id_usuario,
+                id_grupo
             )
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
         """
 
         cursor.execute(
             consulta,
-            (nombre_materia, curso, docente[0], turno, id_usuario)
+            (
+                nombre_materia,
+                curso,
+                docente[0],
+                turno,
+                id_usuario,
+                id_grupo
+            )
         )
 
         conexion.commit()
@@ -93,8 +117,8 @@ def insertar_materia(nombre_materia, curso, id_usuario, turno):
     finally:
         conexion.close()
 
+def listar_materias_por_curso(curso, id_usuario=None):
 
-def listar_materias_por_curso(curso):
     conexion = conectar()
 
     try:
@@ -111,15 +135,19 @@ def listar_materias_por_curso(curso):
             LEFT JOIN usuarios u
                 ON m.id_usuario = u.id_usuario
             WHERE m.curso = ?
+              AND (? IS NULL OR m.id_usuario = ?)
             ORDER BY m.nombre_materia COLLATE NOCASE ASC
         """
 
-        cursor.execute(consulta, (curso,))
+        cursor.execute(
+            consulta,
+            (curso, id_usuario, id_usuario)
+        )
+
         return cursor.fetchall()
 
     finally:
         conexion.close()
-
 
 def listar_cursos():
     conexion = conectar()
@@ -178,6 +206,28 @@ def actualizar_docente_materia(id_materia, id_usuario):
         conexion.rollback()
         print(f"Error al actualizar docente: {error}")
         return False
+
+    finally:
+        conexion.close()
+
+def listar_grupos():
+    conexion = conectar()
+
+    try:
+        cursor = conexion.cursor()
+
+        consulta = """
+            SELECT
+                id_grupo,
+                curso,
+                turno,
+                division
+            FROM grupos_nuevo
+            ORDER BY curso ASC, division ASC
+        """
+
+        cursor.execute(consulta)
+        return cursor.fetchall()
 
     finally:
         conexion.close()

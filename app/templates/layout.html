@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -16,6 +15,18 @@
     <header>
         <h1>Registro de calificaciones</h1>
     </header>
+
+    {% if session.get("id_usuario") %}
+
+        <nav class="menu-sesion">
+
+            <a href="{{ url_for('inicio') }}">INICIO</a>
+
+            <a href="{{ url_for('logout') }}">CERRAR SESIÓN</a>
+
+        </nav>
+
+    {% endif %}
 
     <main>
 

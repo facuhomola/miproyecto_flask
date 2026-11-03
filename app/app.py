@@ -2,6 +2,8 @@ import os
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 
+# estudiantes, materias, calificaciones y usuarios
+
 from consultas.estudiantes import (
     listar_estudiantes,
     insertar_estudiante,
@@ -16,13 +18,15 @@ from consultas.materias import (
     insertar_materia,
     listar_materias_por_curso,
     listar_cursos,
-    actualizar_docente_materia
+    actualizar_docente_materia, 
+    listar_cursos_por_docente
 )
 
 from consultas.calificaciones import (
     listar_calificaciones_por_curso,
     listar_calificaciones_por_curso_y_materia,
-    guardar_calificaciones_planilla
+    guardar_calificaciones_planilla,
+    listar_calificaciones_generales
 )
 
 from consultas.usuarios import (
@@ -437,19 +441,35 @@ def mostrar_calificaciones_por_curso(curso):
         calificaciones=calificaciones
     )
 
+@app.route("/calificaciones/listado-general")
+@requiere_rol("administrador", "docente")
+def listado_general_calificaciones():
+
+    # Determinar si corresponde aplicar el filtro por docente.
+    id_usuario = None
+
+    if session.get("rol") == "docente":
+        id_usuario = session.get("id_usuario")
+
+    # Obtener las calificaciones según el usuario conectado.
+    calificaciones = listar_calificaciones_generales(id_usuario)
+
+    return render_template(
+        "calificaciones/listado_general.html",
+        calificaciones=calificaciones
+    )
 
 @app.route("/calificaciones/planilla", methods=["GET", "POST"])
 @requiere_rol("administrador", "docente")
 def planilla_calificaciones():
 
-    cursos = listar_cursos()
-
-    # Para el administrador no se aplica filtro por docente.
-    # Para el docente se utiliza su identificador de sesión.
-    id_usuario = None
-
+    # Determinar los cursos disponibles según el rol.
     if session.get("rol") == "docente":
         id_usuario = session.get("id_usuario")
+        cursos = listar_cursos_por_docente(id_usuario)
+    else:
+        id_usuario = None
+        cursos = listar_cursos()
 
     if request.method == "POST":
 

@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Listado general de calificaciones
+{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion">
+
+    <h2>Listado general de calificaciones</h2>
+
+    <p>
+        Consulta de las calificaciones registradas en el sistema.
+    </p>
+
+    {% if calificaciones %}
+
+        <div style="overflow-x: auto;">
+
+            <table class="tabla-calificaciones">
+
+                <thead>
+                    <tr>
+                        <th>N.º</th>
+                        <th>Estudiante</th>
+                        <th>DNI</th>
+                        <th>Curso</th>
+                        <th>Turno</th>
+                        <th>División</th>
+                        <th>Materia</th>
+                        <th>1.º Trim.</th>
+                        <th>2.º Trim.</th>
+                        <th>3.º Trim.</th>
+                        <th>Promedio</th>
+                        <th>Diciembre</th>
+                        <th>Marzo</th>
+                        <th>Final</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for fila in calificaciones %}
+
+                        <tr>
+                            <td>{{ fila[0] }}</td>
+                            <td>{{ fila[1] }}</td>
+                            <td>{{ fila[2] }}</td>
+                            <td>{{ fila[3] }}°</td>
+                            <td>{{ fila[4] }}</td>
+                            <td>{{ fila[5] }}</td>
+                            <td>{{ fila[6] }}</td>
+
+                            {% for nota in fila[7:] %}
+                                <td>
+                                    {% if nota is not none %}
+                                        {{ nota }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <p>
+            No hay calificaciones registradas para consultar.
+        </p>
+
+    {% endif %}
+
+    <a href="{{ url_for('calificaciones') }}" class="volver">
+        ← Volver a Calificaciones
+    </a>
+
+</section>
+
+{% endblock %}

@@ -167,6 +167,28 @@ def listar_cursos():
     finally:
         conexion.close()
 
+
+def listar_cursos_por_docente(id_usuario):
+
+    conexion = conectar()
+
+    try:
+        cursor = conexion.cursor()
+
+        consulta = """
+            SELECT DISTINCT curso
+            FROM materias
+            WHERE id_usuario = ?
+            ORDER BY curso ASC
+        """
+
+        cursor.execute(consulta, (id_usuario,))
+
+        return [fila[0] for fila in cursor.fetchall()]
+
+    finally:
+        conexion.close()
+
 def actualizar_docente_materia(id_materia, id_usuario):
 
     conexion = conectar()

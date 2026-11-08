@@ -4,7 +4,7 @@ import os
 def conectar():
 
     ruta = os.path.abspath("basededatos/calificaciones.db")
-    print("BASE DE DATOS UTILIZADA:", ruta)
+    #print("BASE DE DATOS UTILIZADA:", ruta)
 
     conexion = sqlite3.connect(ruta)
 

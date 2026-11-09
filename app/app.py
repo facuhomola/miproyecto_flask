@@ -201,13 +201,12 @@ def alta_estudiante():
         )
 
         if resultado:
-            return "<h1>Estudiante guardado correctamente</h1>"
+            flash("Estudiante registrado correctamente.", "success")
+            return redirect(url_for("alta_estudiante"))
 
         else:
-            return (
-                "<h1>Error al guardar estudiante</h1>"
-                f"<p>{mensaje}</p>"
-            ), 400
+            flash(f"No se pudo registrar el estudiante: {mensaje}", "error")
+            return redirect(url_for("alta_estudiante"))
 
     return render_template(
         "estudiantes/alta_estudiante.html",

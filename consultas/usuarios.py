@@ -85,15 +85,9 @@ def crear_usuario(
 
 
 def buscar_usuario(nombre_de_usuario):
-    """
-    Busca un usuario por su nombre de usuario.
-    """
-
     conexion = conectar()
-
     try:
         cursor = conexion.cursor()
-
         cursor.execute("""
             SELECT
                 id_usuario,
@@ -101,16 +95,14 @@ def buscar_usuario(nombre_de_usuario):
                 contrasenia,
                 rol,
                 nombre_apellido,
-                dni
+                dni,
+                activo
             FROM usuarios
             WHERE nombre_de_usuario = ?
         """, (nombre_de_usuario.strip(),))
-
         return cursor.fetchone()
-
     finally:
         conexion.close()
-
 
 def verificar_contrasenia(
     contrasenia_ingresada,
@@ -127,3 +119,30 @@ def verificar_contrasenia(
         contrasenia_hash,
         contrasenia_ingresada
     )
+
+
+def listar_usuarios_docentes():
+    """
+    Obtiene todos los usuarios registrados con rol docente.
+    """
+
+    conexion = conectar()
+
+    try:
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            SELECT
+                id_usuario,
+                nombre_apellido,
+                dni,
+                nombre_de_usuario
+            FROM usuarios
+            WHERE rol = 'docente'
+            ORDER BY nombre_apellido
+        """)
+
+        return cursor.fetchall()
+
+    finally:
+        conexion.close()

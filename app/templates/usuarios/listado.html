@@ -14,6 +14,64 @@ Gestión de usuarios
         Administración de cuentas de docentes del sistema.
     </p>
 
+    <div class="acciones-usuarios">
+
+        <a href="" class="boton">
+            Registrar docente
+        </a>
+
+    </div>
+
+    <h3>Docentes registrados</h3>
+
+    {% if docentes %}
+
+        <div class="tabla-contenedor">
+
+            <table class="tabla-usuarios">
+
+                <thead>
+                    <tr>
+                        <th>Nombre y apellido</th>
+                        <th>DNI</th>
+                        <th>Nombre de usuario</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for docente in docentes %}
+
+                        <tr>
+                            <td>{{ docente[1] }}</td>
+                            <td>{{ docente[2] }}</td>
+                            <td>{{ docente[3] }}</td>
+
+                            <td>
+                                <div class="acciones-tabla">
+
+                                    <!-- Aquí incorporaremos Editar y Eliminar -->
+
+                                </div>
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <p>No hay docentes registrados.</p>
+
+    {% endif %}
+
+
 </section>
 
 {% endblock %}

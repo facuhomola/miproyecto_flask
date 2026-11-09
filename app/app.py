@@ -32,7 +32,8 @@ from consultas.calificaciones import (
 from consultas.usuarios import (
     crear_usuario,
     buscar_usuario,
-    verificar_contrasenia
+    verificar_contrasenia,
+    listar_usuarios_docentes
 )
 
 
@@ -101,6 +102,7 @@ def login():
 
         if (
             usuario is not None
+            and usuario[6] == 1
             and verificar_contrasenia(
                 contrasenia,
                 usuario[2]
@@ -400,15 +402,18 @@ def editar_materia(id_materia):
 
 # FIN MATERIAS
 
-
 # USUARIOS
 
 @app.route("/usuarios")
 @requiere_rol("administrador")
 def usuarios():
 
-    return render_template("usuarios/listado.html")
+    docentes = listar_usuarios_docentes()
 
+    return render_template(
+        "usuarios/listado.html",
+        docentes=docentes
+    )
 
 # FIN USUARIOS
 

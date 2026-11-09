@@ -136,13 +136,142 @@ def listar_usuarios_docentes():
                 id_usuario,
                 nombre_apellido,
                 dni,
-                nombre_de_usuario
+                nombre_de_usuario,
+                activo
             FROM usuarios
             WHERE rol = 'docente'
             ORDER BY nombre_apellido
         """)
 
         return cursor.fetchall()
+
+    finally:
+        conexion.close()
+
+def suspender_usuario(id_usuario):
+    """
+    Suspende una cuenta docente sin eliminar sus datos.
+    """
+
+    conexion = conectar()
+
+    try:
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            UPDATE usuarios
+            SET activo = 0
+            WHERE id_usuario = ?
+            AND rol = 'docente'
+            AND activo = 1
+        """, (id_usuario,))
+
+        conexion.commit()
+
+        return cursor.rowcount > 0
+
+    except sqlite3.Error:
+        conexion.rollback()
+        return False
+
+    finally:
+        conexion.close()
+
+def reactivar_usuario(id_usuario):
+    """
+    Reactiva una cuenta docente suspendida.
+    """
+
+    conexion = conectar()
+
+    try:
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            UPDATE usuarios
+            SET activo = 1
+            WHERE id_usuario = ?
+            AND rol = 'docente'
+            AND activo = 0
+        """, (id_usuario,))
+
+        conexion.commit()
+
+        return cursor.rowcount > 0
+
+    except sqlite3.Error:
+        conexion.rollback()
+        return False
+
+    finally:
+        conexion.close()
+
+def actualizar_usuario(id_usuario, nombre_apellido, dni, nombre_de_usuario):
+
+    nombre_apellido = nombre_apellido.strip()
+    dni = dni.strip()
+    nombre_de_usuario = nombre_de_usuario.strip()
+
+    if not nombre_apellido or not dni or not nombre_de_usuario:
+        return False, "Todos los campos son obligatorios."
+
+    conexion = conectar()
+
+    try:
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            UPDATE usuarios
+            SET
+                nombre_apellido = ?,
+                dni = ?,
+                nombre_de_usuario = ?
+            WHERE id_usuario = ?
+            AND rol = 'docente'
+        """, (
+            nombre_apellido,
+            dni,
+            nombre_de_usuario,
+            id_usuario
+        ))
+
+        if cursor.rowcount == 0:
+            conexion.rollback()
+            return False, "No se encontró el docente."
+
+        conexion.commit()
+        return True, "Datos del docente actualizados correctamente."
+
+    except sqlite3.IntegrityError:
+        conexion.rollback()
+        return False, "El nombre de usuario o DNI ya existe."
+
+    except sqlite3.Error:
+        conexion.rollback()
+        return False, "Error al actualizar los datos del docente."
+
+    finally:
+        conexion.close()
+
+def buscar_docente_por_id(id_usuario):
+
+    conexion = conectar()
+
+    try:
+        cursor = conexion.cursor()
+
+        cursor.execute("""
+            SELECT
+                id_usuario,
+                nombre_apellido,
+                dni,
+                nombre_de_usuario
+            FROM usuarios
+            WHERE id_usuario = ?
+            AND rol = 'docente'
+        """, (id_usuario,))
+
+        return cursor.fetchone()
 
     finally:
         conexion.close()

@@ -10,14 +10,14 @@ Gestión de usuarios
 
     <h2>Gestión de usuarios</h2>
 
-    <p>
-        Administración de cuentas de docentes del sistema.
-    </p>
+    <div style="margin-top: 20px;">
 
-    <div class="acciones-usuarios">
-
-        <a href="" class="boton">
-            Registrar docente
+        <a
+            href="{{ url_for('alta_usuario') }}"
+            class="boton"
+            style="display: inline-block; width: auto; text-decoration: none;"
+        >
+            REGISTRAR DOCENTE
         </a>
 
     </div>
@@ -50,8 +50,37 @@ Gestión de usuarios
 
                             <td>
                                 <div class="acciones-tabla">
+                                    <a
+                                        href="{{ url_for('editar_docente', id_usuario=docente[0]) }}"
+                                        class="boton-editar"
+                                    >
+                                        EDITAR
+                                    </a>
+                                    {% if docente[4] == 1 %}
 
-                                    <!-- Aquí incorporaremos Editar y Eliminar -->
+                                        <form
+                                            action="{{ url_for('suspender_docente', id_usuario=docente[0]) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('¿Está seguro de que desea suspender esta cuenta docente?');"
+                                        >
+                                            <button type="submit" class="boton-suspender">
+                                                SUSPENDER
+                                            </button>
+                                        </form>
+
+                                    {% else %}
+
+                                        <form
+                                            action="{{ url_for('reactivar_docente', id_usuario=docente[0]) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('¿Está seguro de que desea reactivar esta cuenta docente?');"
+                                        >
+                                            <button type="submit" class="boton-reactivar">
+                                                REACTIVAR
+                                            </button>
+                                        </form>
+
+                                    {% endif %}
 
                                 </div>
                             </td>

@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Editar docente
+{% endblock %}
+
+{% block contenido %}
+
+<section class="formulario-seccion">
+
+    <h2>Editar docente</h2>
+
+    <p>Modificación de los datos de la cuenta docente.</p>
+
+    <form method="POST" class="formulario">
+
+        <div class="campo">
+            <label for="nombre_apellido">Nombre y apellido:</label>
+            <input
+                type="text"
+                id="nombre_apellido"
+                name="nombre_apellido"
+                value="{{ docente[1] }}"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="dni">DNI:</label>
+            <input
+                type="text"
+                id="dni"
+                name="dni"
+                value="{{ docente[2] }}"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="nombre_de_usuario">Nombre de usuario:</label>
+            <input
+                type="text"
+                id="nombre_de_usuario"
+                name="nombre_de_usuario"
+                value="{{ docente[3] }}"
+                required
+            >
+        </div>
+
+        <button type="submit" class="boton">
+            GUARDAR CAMBIOS
+        </button>
+
+        <a href="{{ url_for('usuarios') }}" class="boton-cancelar">
+            CANCELAR
+        </a>
+
+    </form>
+
+</section>
+
+{% endblock %}

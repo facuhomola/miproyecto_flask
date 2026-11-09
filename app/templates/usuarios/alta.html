@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+
+{% block titulo %}
+Registrar docente
+{% endblock %}
+
+{% block contenido %}
+
+<section class="formulario-seccion">
+
+    <h2>Registrar docente</h2>
+
+    <p>Alta de una nueva cuenta docente en el sistema.</p>
+
+    <form method="POST" class="formulario">
+
+        <div class="campo">
+            <label for="nombre_apellido">Nombre y apellido:</label>
+            <input
+                type="text"
+                id="nombre_apellido"
+                name="nombre_apellido"
+                value="{{ datos.get('nombre_apellido', '') }}"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="dni">DNI:</label>
+            <input
+                type="text"
+                id="dni"
+                name="dni"
+                value="{{ datos.get('dni', '') }}"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="nombre_de_usuario">Nombre de usuario:</label>
+            <input
+                type="text"
+                id="nombre_de_usuario"
+                name="nombre_de_usuario"
+                value="{{ datos.get('nombre_de_usuario', '') }}"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="contrasenia">Contraseña:</label>
+            <input
+                type="password"
+                id="contrasenia"
+                name="contrasenia"
+                required
+            >
+        </div>
+
+        <div class="campo">
+            <label for="confirmar_contrasenia">Confirmar contraseña:</label>
+            <input
+                type="password"
+                id="confirmar_contrasenia"
+                name="confirmar_contrasenia"
+                required
+            >
+        </div>
+
+        <button type="submit" class="boton">
+            REGISTRAR DOCENTE
+        </button>
+
+        <a href="{{ url_for('usuarios') }}" class="boton-cancelar">
+            CANCELAR
+        </a>
+
+    </form>
+
+</section>
+
+{% endblock %}

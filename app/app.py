@@ -33,7 +33,11 @@ from consultas.usuarios import (
     crear_usuario,
     buscar_usuario,
     verificar_contrasenia,
-    listar_usuarios_docentes
+    listar_usuarios_docentes,
+    suspender_usuario,
+    reactivar_usuario,
+    actualizar_usuario,
+    buscar_docente_por_id
 )
 
 
@@ -413,6 +417,150 @@ def usuarios():
     return render_template(
         "usuarios/listado.html",
         docentes=docentes
+    )
+
+@app.route("/usuarios/alta", methods=["GET", "POST"])
+@requiere_rol("administrador")
+def alta_usuario():
+
+    if request.method == "POST":
+
+        nombre_apellido = request.form.get(
+            "nombre_apellido", ""
+        ).strip()
+
+        dni = request.form.get(
+            "dni", ""
+        ).strip()
+
+        nombre_de_usuario = request.form.get(
+            "nombre_de_usuario", ""
+        ).strip()
+
+        contrasenia = request.form.get(
+            "contrasenia", ""
+        )
+
+        confirmar_contrasenia = request.form.get(
+            "confirmar_contrasenia", ""
+        )
+
+        datos = {
+            "nombre_apellido": nombre_apellido,
+            "dni": dni,
+            "nombre_de_usuario": nombre_de_usuario
+        }
+
+        if not all([
+            nombre_apellido,
+            dni,
+            nombre_de_usuario,
+            contrasenia,
+            confirmar_contrasenia
+        ]):
+            flash("Todos los campos son obligatorios.", "error")
+
+        elif contrasenia != confirmar_contrasenia:
+            flash("Las contraseñas no coinciden.", "error")
+
+        else:
+            resultado, mensaje = crear_usuario(
+                nombre_de_usuario,
+                contrasenia,
+                "docente",
+                nombre_apellido,
+                dni
+            )
+
+            if resultado:
+                flash(mensaje, "success")
+                return redirect(url_for("usuarios"))
+
+            flash(mensaje, "error")
+
+        return render_template(
+            "usuarios/alta.html",
+            datos=datos
+        )
+
+    return render_template(
+        "usuarios/alta.html",
+        datos={}
+    )
+
+@app.route("/usuarios/suspender/<int:id_usuario>", methods=["POST"])
+@requiere_rol("administrador")
+def suspender_docente(id_usuario):
+
+    resultado = suspender_usuario(id_usuario)
+
+    if resultado:
+        flash("Docente suspendido correctamente.", "success")
+    else:
+        flash("No se pudo suspender el docente.", "error")
+
+    return redirect(url_for("usuarios"))
+
+@app.route("/usuarios/reactivar/<int:id_usuario>", methods=["POST"])
+@requiere_rol("administrador")
+def reactivar_docente(id_usuario):
+
+    resultado = reactivar_usuario(id_usuario)
+
+    if resultado:
+        flash("Docente reactivado correctamente.", "success")
+    else:
+        flash("No se pudo reactivar el docente.", "error")
+
+    return redirect(url_for("usuarios"))
+
+@app.route("/usuarios/editar/<int:id_usuario>", methods=["GET", "POST"])
+@requiere_rol("administrador")
+def editar_docente(id_usuario):
+
+    docente = buscar_docente_por_id(id_usuario)
+
+    if docente is None:
+        flash("No se encontró el docente.", "error")
+        return redirect(url_for("usuarios"))
+
+    if request.method == "POST":
+
+        nombre_apellido = request.form.get(
+            "nombre_apellido", ""
+        ).strip()
+
+        dni = request.form.get(
+            "dni", ""
+        ).strip()
+
+        nombre_de_usuario = request.form.get(
+            "nombre_de_usuario", ""
+        ).strip()
+
+        resultado, mensaje = actualizar_usuario(
+            id_usuario,
+            nombre_apellido,
+            dni,
+            nombre_de_usuario
+        )
+
+        if resultado:
+            flash(mensaje, "success")
+            return redirect(url_for("usuarios"))
+
+        flash(mensaje, "error")
+
+        docente = (
+            id_usuario,
+            nombre_apellido,
+            dni,
+            nombre_de_usuario
+        )
+
+    return render_template(
+        "usuarios/editar.html",
+        docente=docente
     )
 
 # FIN USUARIOS

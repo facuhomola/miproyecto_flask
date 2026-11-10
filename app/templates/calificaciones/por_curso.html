@@ -20,6 +20,7 @@ Listado de calificaciones por curso
                     <th>Estudiante</th>
                     <th>Materia</th>
                     <th>Turno</th>
+                    <th>División</th>
                     <th>1.er trimestre</th>
                     <th>2.º trimestre</th>
                     <th>3.er trimestre</th>
@@ -38,7 +39,7 @@ Listado de calificaciones por curso
                     <td>{{ calificacion[1] }}</td>
                     <td>{{ calificacion[2] }}</td>
                     <td>{{ calificacion[3] }}</td>
-                    <td>{{ calificacion[4] if calificacion[4] is not none else '-' }}</td>
+                    <td>{{ calificacion[4] }}</td>
                     <td>{{ calificacion[5] if calificacion[5] is not none else '-' }}</td>
                     <td>{{ calificacion[6] if calificacion[6] is not none else '-' }}</td>
                     <td>{{ calificacion[7] if calificacion[7] is not none else '-' }}</td>
@@ -46,6 +47,7 @@ Listado de calificaciones por curso
                     <td>{{ calificacion[9] if calificacion[9] is not none else '-' }}</td>
                     <td>{{ calificacion[10] if calificacion[10] is not none else '-' }}</td>
                     <td>{{ calificacion[11] if calificacion[11] is not none else '-' }}</td>
+                    <td>{{ calificacion[12] if calificacion[12] else '-' }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

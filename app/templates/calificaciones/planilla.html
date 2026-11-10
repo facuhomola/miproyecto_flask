@@ -63,7 +63,7 @@
                         {% if materia[0] == id_materia_seleccionada %}
                             selected
                         {% endif %}>
-                        {{ materia[1] }} ({{ materia[4] }})
+                        {{ materia[1] }} ({{ materia[2] }}° año - {{ materia[4] }} - División {{ materia[5] }})
                     </option>
                 {% endfor %}
 
@@ -81,7 +81,9 @@
         <h2>{{ materia_seleccionada[1] }}</h2>
 
         <p>
-            Curso: {{ curso_seleccionado }}° año
+            Curso: {{ materia_seleccionada[2] }}° año
+            - Turno: {{ materia_seleccionada[4] }}
+            - División: {{ materia_seleccionada[5] }}
         </p>
 
         {% if calificaciones %}
@@ -203,9 +205,14 @@
                                         {{ fila[10] if fila[10] is not none else "" }}
                                     </td>
 
-                                    <!-- Observaciones: solo lectura -->
+                                    <!-- Observaciones: campo editable -->
                                     <td>
-                                        {{ fila[11] if fila[11] is not none else "" }}
+                                        <textarea
+                                            name="observaciones_{{ fila[0] }}"
+                                            rows="2"
+                                            cols="25"
+                                            aria-label="Observaciones: {{ fila[2] }}"
+                                        >{{ fila[11] if fila[11] is not none else "" }}</textarea>
                                     </td>
                                 </tr>
 

@@ -702,9 +702,15 @@ def planilla_calificaciones():
                     ),
             }
 
+            # Obtener la observación correspondiente al estudiante.
+            observaciones = request.form.get(
+                f"observaciones_{id_estudiante}", ""
+            )
+
             registros.append({
                 "id_estudiante": id_estudiante,
-                "notas": notas
+                "notas": notas,
+                "observaciones": observaciones
             })
 
         try:

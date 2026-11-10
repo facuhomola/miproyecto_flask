@@ -117,6 +117,7 @@ def insertar_materia(nombre_materia, id_grupo, id_usuario):
     finally:
         conexion.close()
 
+
 def listar_materias_por_curso(curso, id_usuario=None):
 
     conexion = conectar()
@@ -130,12 +131,20 @@ def listar_materias_por_curso(curso, id_usuario=None):
                 m.nombre_materia,
                 m.curso,
                 COALESCE(u.nombre_apellido, m.docente) AS docente,
-                m.turno
+                g.turno,
+                g.division,
+                m.id_grupo
             FROM materias m
+
             LEFT JOIN usuarios u
                 ON m.id_usuario = u.id_usuario
+
+            LEFT JOIN grupos_nuevo g
+                ON m.id_grupo = g.id_grupo
+
             WHERE m.curso = ?
               AND (? IS NULL OR m.id_usuario = ?)
+
             ORDER BY m.nombre_materia COLLATE NOCASE ASC
         """
 

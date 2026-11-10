@@ -36,6 +36,7 @@ Listado general de calificaciones
                         <th>Diciembre</th>
                         <th>Marzo</th>
                         <th>Final</th>
+                        <th>Observaciones</th>
                     </tr>
                 </thead>
 
@@ -52,7 +53,7 @@ Listado general de calificaciones
                             <td>{{ fila[5] }}</td>
                             <td>{{ fila[6] }}</td>
 
-                            {% for nota in fila[7:] %}
+                            {% for nota in fila[7:14] %}
                                 <td>
                                     {% if nota is not none %}
                                         {{ nota }}
@@ -61,6 +62,14 @@ Listado general de calificaciones
                                     {% endif %}
                                 </td>
                             {% endfor %}
+
+                            <td>
+                                {% if fila[14] %}
+                                    {{ fila[14] }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
 
                         </tr>
 

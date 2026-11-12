@@ -5,3 +5,4 @@ __pycache__/
 
 # Permitir la base de datos del proyecto Flask
 # !basededatos/calificaciones.db
+# cambio de prueba
